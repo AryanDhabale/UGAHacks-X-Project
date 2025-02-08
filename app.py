@@ -1,10 +1,11 @@
 import streamlit as st
 import requests
 from datetime import datetime
+from streamlit_navigation_bar import st_navbar
 
 # Simulated user data for login
 simulated_user_data = {
-    "username": "Vedaant", 
+    "username": "JohnDoe", 
     "level": 1,
     "challenges_completed": 5
 }
@@ -49,6 +50,9 @@ def display_financial_data():
             st.error(f"Error fetching AlphaVantage data: {e}")
 
 def show_dashboard(user_data):
+
+    page = st_navbar(["Home", "Documentation", "Examples", "Community", "About"])
+    st.write(page)
     """Main dashboard view for authenticated users"""
     st.title(f"Welcome, {user_data['username']}!")
     st.write(f"Level: {user_data['level']} | Challenges Completed: {user_data['challenges_completed']}")
@@ -56,23 +60,27 @@ def show_dashboard(user_data):
     # Display Financial Data
     display_financial_data()
 
-    # Gamified Challenges Buttons
-    st.subheader("Your Challenges")
+    # Add a selectbox for game options at the top right
+    game_option = st.selectbox(
+        "Select a Game", 
+        options=["Home", "Balance Sheet Challenge", "EBITDA Speed Run", "Horizontal Analysis Battle", "Company Face-Off"], 
+        index=0,
+        key="game_select"
+    )
     
-    # Buttons for each challenge
-    if st.button("Balance Sheet Challenge"):
+    if game_option == "Home":
+        st.session_state.page = "home"
+        st.rerun()
+    elif game_option == "Balance Sheet Challenge":
         st.session_state.page = "balance_sheet"
         st.rerun()
-
-    if st.button("EBITDA Speed Run"):
+    elif game_option == "EBITDA Speed Run":
         st.session_state.page = "ebitda_speed_run"
         st.rerun()
-
-    if st.button("Horizontal Analysis Battle"):
+    elif game_option == "Horizontal Analysis Battle":
         st.session_state.page = "horizontal_analysis"
         st.rerun()
-
-    if st.button("Company Face-Off"):
+    elif game_option == "Company Face-Off":
         st.session_state.page = "company_face_off"
         st.rerun()
 
@@ -80,21 +88,33 @@ def show_balance_sheet_challenge():
     st.subheader("Balance Sheet Challenge")
     st.write("This is the Balance Sheet Challenge page.")
     # Add your challenge logic here
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
 
 def show_ebitda_speed_run():
     st.subheader("EBITDA Speed Run")
     st.write("This is the EBITDA Speed Run page.")
     # Add your challenge logic here
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
 
 def show_horizontal_analysis():
     st.subheader("Horizontal Analysis Battle")
     st.write("This is the Horizontal Analysis Battle page.")
     # Add your challenge logic here
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
 
 def show_company_face_off():
     st.subheader("Company Face-Off")
     st.write("This is the Company Face-Off page.")
     # Add your challenge logic here
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
 
 def main():
     """Main app function"""

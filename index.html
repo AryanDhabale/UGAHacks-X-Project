@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Gamified Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head> 
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="logo">Financial Game</div>
+        <div class="nav-links">
+            <a href="#" id="homeLink">Home</a>
+            <a href="#" id="balanceSheetLink">Balance Sheet Challenge</a>
+            <a href="#" id="ebitdaLink">EBITDA Speed Run</a>
+            <a href="#" id="horizontalAnalysisLink">Horizontal Analysis Battle</a>
+            <a href="#" id="companyFaceOffLink">Company Face-Off</a>
+        </div>
+    </div>
+
+    <!-- Login Section -->
+    <div id="loginSection" class="section">
+        <h2>Login to Your Account</h2>
+        <input type="text" id="usernameInput" placeholder="Username">
+        <button id="loginBtn">Login</button>
+        <p id="errorMessage" class="error-message"></p>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="section" style="display: none;">
+        <h2 id="welcomeMessage"></h2>
+        <div id="financialData"></div>
+        <div id="gameSelection">
+            <label for="gameSelect">Select a Game: </label>
+            <select id="gameSelect">
+                <option value="home">Home</option>
+                <option value="balanceSheet">Balance Sheet Challenge</option>
+                <option value="ebitda">EBITDA Speed Run</option>
+                <option value="horizontalAnalysis">Horizontal Analysis Battle</option>
+                <option value="companyFaceOff">Company Face-Off</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Challenge Pages -->
+    <div id="balanceSheetPage" class="section" style="display: none;">
+        <h2>Balance Sheet Challenge</h2>
+        <p>This is the Balance Sheet Challenge page.</p>
+        <button id="backHomeBalanceSheet">Back to Home</button>
+    </div>
+    <div id="ebitdaPage" class="section" style="display: none;">
+        <h2>EBITDA Speed Run</h2>
+        <p>This is the EBITDA Speed Run page.</p>
+        <button id="backHomeEbitda">Back to Home</button>
+    </div>
+    <div id="horizontalAnalysisPage" class="section" style="display: none;">
+        <h2>Horizontal Analysis Battle</h2>
+        <p>This is the Horizontal Analysis Battle page.</p>
+        <button id="backHomeHorizontalAnalysis">Back to Home</button>
+    </div>
+    <div id="companyFaceOffPage" class="section" style="display: none;">
+        <h2>Company Face-Off</h2>
+        <p>This is the Company Face-Off page.</p>
+        <button id="backHomeCompanyFaceOff">Back to Home</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
