@@ -1,104 +1,146 @@
-import random
-import pandas as pd
+import yfinance as yf
 import streamlit as st
+import pandas as pd
+import random
 
-def generate_income_statement():
+# List of popular stock tickers
+popular_stocks = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NFLX', 'NVDA', 'SPY', 'GOOG', 'BABA', 'AMZN', 'INTC', 'TSM', 'DIS']
+
+def get_dynamic_data(ticker):
     """
-    Generates a random income statement with logically consistent values.
+    Fetches financial data for the given ticker from yfinance and returns the top metrics for Q1.
+    It will also store the EBITDA value, but it will not be displayed in the table.
+    If data is missing, it will not be included in the table.
     """
-    # Generate Net Sales (in thousands)
-    net_sales = random.randint(100000, 500000)
+    # Fetch company data using yfinance
+    company = yf.Ticker(ticker)
 
-    # Generate Cost of Sales (in thousands, should be less than Net Sales)
-    cost_of_sales = random.randint(int(net_sales * 0.4), int(net_sales * 0.8))
+    # Fetching the financials (Income Statement)
+    income_statement = company.financials
 
-    # Gross Profit (Net Sales - Cost of Sales)
-    gross_profit = net_sales - cost_of_sales
-
-    # Selling and Operating Expenses (in thousands, reasonable percentage of Net Sales)
-    selling_operating_expenses = random.randint(int(net_sales * 0.1), int(net_sales * 0.2))
-
-    # General and Administrative Expenses (in thousands, less than Selling and Operating Expenses)
-    g_and_a_expenses = random.randint(int(selling_operating_expenses * 0.5), int(selling_operating_expenses * 0.8))
-
-    # Total Operating Expenses (Selling and Operating Expenses + G&A Expenses)
-    total_operating_expenses = selling_operating_expenses + g_and_a_expenses
-
-    # Operating Income (Gross Profit - Total Operating Expenses)
-    operating_income = gross_profit - total_operating_expenses
-
-    # Other Income (small relative to Operating Income)
-    other_income = random.randint(-5000, 5000)
-
-    # Gain (Loss) on Financial Instruments (can be negative)
-    gain_loss_instruments = random.randint(-10000, 10000)
-
-    # (Loss) Gain on Foreign Currency (can be negative)
-    gain_loss_foreign_currency = random.randint(-5000, 5000)
-
-    # Interest Expense (should not exceed Operating Income)
-    interest_expense = random.randint(0, int(operating_income * 0.2))
-
-    # Income Before Taxes (Operating Income + Other Income + Gain/Loss on Financial Instruments + Gain/Loss on Foreign Currency)
-    income_before_taxes = operating_income + other_income + gain_loss_instruments + gain_loss_foreign_currency
-
-    # Income Tax Expense (25% of Income Before Taxes)
-    income_tax_expense = int(income_before_taxes * 0.25) if income_before_taxes > 0 else 0
-
-    # Net Income (Income Before Taxes - Income Tax Expense)
-    net_income = income_before_taxes - income_tax_expense
-
-    # Depreciation (less than or equal to Operating Income)
-    depreciation = random.randint(0, int(operating_income * 0.2))
-
-    # Amortization (small value compared to Depreciation)
-    amortization = random.randint(0, int(depreciation * 0.5))
-
-    # Prepare the generated data into a dictionary
-    data = {
-        'Net Sales': net_sales,
-        'Cost of Sales': cost_of_sales,
-        'Gross Profit': gross_profit,
-        'Selling and Operating Expenses': selling_operating_expenses,
-        'General and Administrative Expenses': g_and_a_expenses,
-        'Total Operating Expenses': total_operating_expenses,
-        'Operating Income': operating_income,
-        'Other Income': other_income,
-        'Gain (Loss) on Financial Instruments': gain_loss_instruments,
-        'Gain (Loss) on Foreign Currency': gain_loss_foreign_currency,
-        'Interest Expense': interest_expense,
-        'Income Before Taxes': income_before_taxes,
-        'Income Tax Expense': income_tax_expense,
-        'Net Income': net_income,
-        'Depreciation': depreciation,
-        'Amortization': amortization
-    }
-
-    # Convert to a pandas DataFrame for better display
-    df = pd.DataFrame(list(data.items()), columns=['Metric', 'Value'])
-    df['Value'] = df['Value'].apply(lambda x: f"${x:,.0f}K")  # Format the values to be in thousands
+    # Initialize an empty dictionary to store the data
+    data_dict = {}
     
-    return df, data  # Return both the DataFrame for display and the raw data for calculations
+    # Attempt to get required metrics and handle missing data
+    try:
+        ebitda = income_statement.loc['EBITDA'].iloc[0] / 1000  # Convert to thousands
+        data_dict['EBITDA'] = ebitda
+    except KeyError:
+        pass
+    
+    try:
+        net_income = income_statement.loc['Net Income'].iloc[0] / 1000  # Convert to thousands
+        data_dict['Net Income'] = net_income
+    except KeyError:
+        pass
+    
+    try:
+        depreciation = income_statement.loc['Depreciation'].iloc[0] / 1000  # Convert to thousands
+        data_dict['Depreciation'] = depreciation
+    except KeyError:
+        pass
+    
+    try:
+        interest_expense = income_statement.loc['Interest Expense'].iloc[0] / 1000  # Convert to thousands
+        data_dict['Interest Expense'] = interest_expense
+    except KeyError:
+        pass
+    
+    try:
+        taxes = income_statement.loc['Income Tax Expense'].iloc[0] / 1000  # Convert to thousands
+        data_dict['Taxes'] = taxes
+    except KeyError:
+        pass
+
+    try:
+        operating_income = income_statement.loc['Operating Income'].iloc[0] / 1000  # Convert to thousands
+        data_dict['Operating Income'] = operating_income
+    except KeyError:
+        pass
+
+    try:
+        gross_profit = income_statement.loc['Gross Profit'].iloc[0] / 1000  # Convert to thousands
+        data_dict['Gross Profit'] = gross_profit
+    except KeyError:
+        pass
+
+    try:
+        total_revenue = income_statement.loc['Total Revenue'].iloc[0] / 1000  # Convert to thousands
+        data_dict['Total Revenue'] = total_revenue
+    except KeyError:
+        pass
+
+    try:
+        ebit = income_statement.loc['EBIT'].iloc[0] / 1000  # Convert to thousands
+        data_dict['EBIT'] = ebit
+    except KeyError:
+        pass
+
+    try:
+        operating_expenses = income_statement.loc['Operating Expenses'].iloc[0] / 1000  # Convert to thousands
+        data_dict['Operating Expenses'] = operating_expenses
+    except KeyError:
+        pass
+
+    try:
+        interest_income = income_statement.loc['Interest Income'].iloc[0] / 1000  # Convert to thousands
+        data_dict['Interest Income'] = interest_income
+    except KeyError:
+        pass
+
+    # Create DataFrame for Q1 metrics
+    data = {
+        'Metric': [
+            'Earnings Before Interest and Taxes (EBIT)', 'Net Income', 'Depreciation',
+            'Interest Expense', 'Taxes', 'Operating Income', 'Gross Profit', 
+            'Total Revenue', 'EBIT', 'Operating Expenses', 'Interest Income'
+        ],
+        'Q1': [
+            data_dict.get('EBITDA', 'N/A'), 
+            data_dict.get('Net Income', 'N/A'),
+            data_dict.get('Depreciation', 'N/A'),
+            data_dict.get('Interest Expense', 'N/A'),
+            data_dict.get('Taxes', 'N/A'),
+            data_dict.get('Operating Income', 'N/A'),
+            data_dict.get('Gross Profit', 'N/A'),
+            data_dict.get('Total Revenue', 'N/A'),
+            data_dict.get('EBIT', 'N/A'),
+            data_dict.get('Operating Expenses', 'N/A'),
+            data_dict.get('Interest Income', 'N/A')
+        ]
+    }
+    
+    # Create DataFrame from the data
+    df = pd.DataFrame(data)
+    
+    return df, data_dict  # Return both the table and the data for user input comparison
 
 def playEbidtaGame():
     """
-    Launches the EBITDA Challenge game with random income statement data.
+    Launches the EBITDA Challenge game.
     """
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
+
     st.title("EBITDA Challenge: Calculate the EBITDA")
     st.write("Review the income statement on the left and enter the corresponding "
              "values in the fields on the right that represent each letter of **EBITDA**. "
              "Finally, calculate and input the total EBITDA (which should be the sum of "
              "the five components). Please enter all values in thousands.")
-    
-    # Generate a random income statement
-    df, actual_values = generate_income_statement()
+
+    # Randomly select a stock ticker from the list
+    ticker = random.choice(popular_stocks)
+
+    # Get dynamic data based on the ticker
+    data, actual_values = get_dynamic_data(ticker)
 
     # Create two columns: left for the income statement, right for input fields.
     left_col, right_col = st.columns(2)
 
     with left_col:
-        st.subheader("Income Statement")
-        st.dataframe(df)  # Displaying the income statement
+        st.subheader(f"Income Statement for {ticker}")
+        st.dataframe(data)  # Displaying the income statement without EBITDA
 
     # --- Right Column: User Input Fields for EBITDA Components ---
     with right_col:
@@ -118,8 +160,6 @@ def playEbidtaGame():
     st.markdown("---")
 
     # --- Check the User's Input ---
-    all_correct = True  # Keep track of whether all inputs are correct
-
     if st.button("Check EBITDA"):
         try:
             # Convert inputs to floats.
@@ -133,52 +173,31 @@ def playEbidtaGame():
             # Calculate the sum of the individual components.
             calculated_total = E_val + I_val + T_val + D_val + A_val
 
-            # Check if each input field is correct
-            feedback = []
-            if abs(E_val - actual_values['Net Income']) < 1e-2:
-                feedback.append("Earnings Before Taxes (Net Income): Correct!")
-            else:
-                feedback.append("Earnings Before Taxes (Net Income): Incorrect! Blank or wrong value.")
-
-            if abs(I_val - actual_values['Interest Expense']) < 1e-2:
-                feedback.append("Interest Expense: Correct!")
-            else:
-                feedback.append("Interest Expense: Incorrect! Blank or wrong value.")
-                all_correct = False
-
-            if abs(T_val - actual_values['Income Tax Expense']) < 1e-2:
-                feedback.append("Taxes (Income Tax Expense): Correct!")
-            else:
-                feedback.append("Taxes (Income Tax Expense): Incorrect! Blank or wrong value.")
-                all_correct = False
-
-            if abs(D_val - actual_values['Depreciation']) < 1e-2:
-                feedback.append("Depreciation: Correct!")
-            else:
-                feedback.append("Depreciation: Incorrect! Blank or wrong value.")
-                all_correct = False
-
-            if abs(A_val - actual_values['Amortization']) < 1e-2:
-                feedback.append("Amortization: Correct!")
-            else:
-                feedback.append("Amortization: Incorrect! Blank or wrong value.")
-                all_correct = False
-
-            # Check if the total EBITDA matches
+            # Compare the calculated total with the user-entered total.
             if abs(calculated_total - total_input) < 1e-2:
-                feedback.append(f"Total EBITDA: Correct! The sum of components is ${calculated_total:,.0f}K.")
+                st.success(f"Correct! The total EBITDA is ${calculated_total:,.0f}K.")
             else:
-                feedback.append(f"Total EBITDA: Incorrect! Your total input of ${total_input:,.0f}K doesn't match.")
-                all_correct = False
+                st.error(f"Incorrect. The sum of your components is ${calculated_total:,.0f}K, "
+                         f"which does not match your total EBITDA input of ${total_input:,.0f}K.")
+            
+            # Now compare user input to actual values
+            st.subheader(f"Comparing Your Input to Actual Values:")
 
-            # Show feedback to the user
+            # For each metric, compare the user input with the actual value
+            feedback = []
+            for metric, actual in actual_values.items():
+                user_input = locals().get(f"input_{metric[0]}", 0)
+                if user_input:
+                    if abs(user_input - actual) < 1e-2:
+                        feedback.append(f"{metric}: Correct! Your input matches the actual value of ${actual:,.0f}K.")
+                    else:
+                        feedback.append(f"{metric}: Incorrect. Your input of ${user_input:,.0f}K does not match the actual value of ${actual:,.0f}K.")
+                else:
+                    feedback.append(f"{metric}: You did not provide an input for this metric.")
+            
+            # Display the feedback for each metric
             for line in feedback:
                 st.write(line)
 
-            if all_correct:
-                st.success("Congratulations! You've got all the components right!")
-            else:
-                st.warning("Please correct the errors before submitting again.")
-                
         except ValueError:
             st.error("Please ensure that all fields are filled in with valid numeric values.")

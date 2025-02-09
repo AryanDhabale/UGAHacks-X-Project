@@ -2,15 +2,20 @@ import streamlit as st
 import pandas as pd
 import requests
 import pymongo
+from pymongo import MongoClient
+import re
 import json
 import os
 from datetime import datetime
 from random import sample
 from google import genai
 import fitz
+import plotly.express as px
+import random
 import PyPDF2
 from io import BytesIO
 import base64;
+import yfinance as yf
 from faceOffGame import playfaceOffGame
 from balanceSheet import playBalanceSheetGame
 from horizontalGame import playHorizontalAnalysisGame
@@ -21,7 +26,10 @@ st.set_page_config(layout="wide")
 simulated_user_data = {
     "username": "JohnDoe",  
     "level": 1,
-    "challenges_completed": 5
+    "challenges_completed": 5,
+    "curXP" : 690,
+    "fullXP" : 800
+
 }
 
 # Gemini API setup (for example)
@@ -35,8 +43,9 @@ ALPHA_VANTAGE_API_URL = "https://www.alphavantage.co/query"
 # MongoDB Connection
 MONGO_URI = "mongodb+srv://samarjeetpurba:cyttZfEIUfkxEE9W@hacksxcluster.wm7pl.mongodb.net/datastorage?retryWrites=true&w=majority"
 client = pymongo.MongoClient(MONGO_URI)
-db = client["datastorage"]
+db = client["datastorage"] 
 questions_collection = db["gamedata1"]
+questions_collection2 = db["gamedata1"]
 
 def get_gemini_ai_response(prompt):
     # Add the preset instruction to the prompt
@@ -111,6 +120,8 @@ def display_financial_data():
 
 def show_dashboard(simulated_user_data):
     """Displays a visually enhanced user dashboard."""
+    st.image("https://github.com/Sam-Purba/picupload/blob/main/Clowncorp.PNG?raw=true", width=150)
+
     st.markdown(
         """
         <style>
@@ -128,15 +139,14 @@ def show_dashboard(simulated_user_data):
     # Navbar
     st.markdown("""
         <div class="navbar">
-            <a href="#">Home</a>
-            <a href="#">Challenges</a>
-            <a href="#">Market Data</a>
-            <a href="#">Profile</a>
+            <a href="#">Play Games to Learn More, and Level Up!!!</a>
         </div>
         """, unsafe_allow_html=True)
     
     # Welcome Header
     st.markdown(f"<p class='header'>👋 Welcome, {st.session_state.username}!</p>", unsafe_allow_html=True)
+
+    
 
     # User Stats Section
     col1, col2, col3 = st.columns(3)
@@ -145,7 +155,7 @@ def show_dashboard(simulated_user_data):
     with col2:
         st.markdown("<div class='metric-box'>🏆<br><b>Challenges Completed</b><br>" + str(simulated_user_data["challenges_completed"]) + "</div>", unsafe_allow_html=True)
     with col3:
-        st.markdown("<div class='metric-box'>💰<br><b>BTC Price</b><br>" + fetch_crypto_price() + "</div>", unsafe_allow_html=True)
+        st.markdown("<div class='metric-box'>💰<br><b>XP to Next Level</b><br>" + str(simulated_user_data["curXP"]) + "/"+ str(simulated_user_data["fullXP"]) + "</div>", unsafe_allow_html=True)
 
     # Financial Data Section
     with st.container():
@@ -177,15 +187,6 @@ def show_dashboard(simulated_user_data):
             # Display the response in the Streamlit app
             st.write(ai_response)
 
-    uploaded_pdf = st.file_uploader("Upload the Balance Sheet PDF", type=["pdf"])
-
-    if uploaded_pdf is not None:
-        # Extract text from the uploaded PDF
-        text = extract_text_from_pdf(uploaded_pdf)
-        sheet = generate_balance_sheet(text)
-        # Display the extracted text
-        st.subheader("Extracted Text from Balance Sheet")
-        st.text_area("Balance Sheet Text", sheet, height=400)
 
 def fetch_crypto_price():
     """Fetches the BTC price from Gemini API."""
@@ -248,77 +249,283 @@ def show_balance_sheet_challenge():
         img = pix.pil_image()  # PIL Image object
         
         # Display the image in Streamlit
-        st.image(img, caption="Balance Sheet", use_container_width=True)
+        st.image(img, caption="Balance Sheet", width=700)
 
         # Extract text from the uploaded PDF
         text = extract_text_from_pdf(uploaded_pdf)
         sheet = generate_balance_sheet(text)
-        complete_prompt = f"Create a question and 4 answer choices about this balance sheet. Return the answer as only a json with the keys question, option_1, option_2, option_3, option_4, and correct_option {sheet}"
-    
+        complete_prompt = f'Give me a precise analysis of this balance sheet covering the most important topics and ratios: {sheet}'
         # Call the Gemini API model to generate content
         responseText = client1.models.generate_content(
             model="gemini-2.0-flash",  # Replace with the desired model if different
             contents=complete_prompt
         )
+        st.write(responseText.candidates[0].content.parts[0].text)
 
-        raw_text = responseText.candidates[0].content.parts[0].text  
+    # Load preloaded questions from JSON
+    PRELOADED_QUESTIONS1 = [
+    {
+        "question": "What is the primary purpose of a balance sheet?",
+        "options": ["Show revenue", "Track financial position", "Record daily transactions", "Calculate profit"],
+        "correct_option": "Track financial position"
+    },
+    {
+        "question": "Which of the following represents liabilities in a balance sheet?",
+        "options": ["Assets", "Equity", "Debt", "Revenue"],
+        "correct_option": "Debt"
+    },
+    {
+        "question": "Which ratio is calculated by dividing total liabilities by total assets?",
+        "options": ["Current ratio", "Debt-to-equity ratio", "Debt ratio", "Quick ratio"],
+        "correct_option": "Debt ratio"
+    },
+    {
+        "question": "Which section of the balance sheet includes retained earnings?",
+        "options": ["Assets", "Liabilities", "Equity", "Revenue"],
+        "correct_option": "Equity"
+    },
+    {
+        "question": "What does the current ratio measure?",
+        "options": ["Liquidity", "Profitability", "Efficiency", "Leverage"],
+        "correct_option": "Liquidity"
+    },
+    {
+        "question": "Which of the following would be classified as a non-current asset?",
+        "options": ["Inventory", "Accounts receivable", "Buildings", "Cash"],
+        "correct_option": "Buildings"
+    },
+    {
+        "question": "What is the formula for the return on equity (ROE) ratio?",
+        "options": ["Net income / Total assets", "Net income / Shareholder's equity", "Operating income / Total liabilities", "Gross profit / Net revenue"],
+        "correct_option": "Net income / Shareholder's equity"
+    },
+    {
+        "question": "Which of the following is NOT a part of shareholder's equity?",
+        "options": ["Common stock", "Retained earnings", "Accounts payable", "Additional paid-in capital"],
+        "correct_option": "Accounts payable"
+    },
+    {
+        "question": "What does the quick ratio exclude from current assets?",
+        "options": ["Cash", "Inventory", "Receivables", "Prepaid expenses"],
+        "correct_option": "Inventory"
+    },
+    {
+        "question": "What does a high debt-to-equity ratio indicate?",
+        "options": ["A company relies more on equity financing than debt", "A company relies more on debt financing than equity", "A company has low financial risk", "A company is highly liquid"],
+        "correct_option": "A company relies more on debt financing than equity"
+    },
+    {
+        "question": "Which of the following is an example of an intangible asset on the balance sheet?",
+        "options": ["Buildings", "Goodwill", "Accounts receivable", "Inventory"],
+        "correct_option": "Goodwill"
+    },
+    {
+        "question": "Which item would most likely be found under current liabilities?",
+        "options": ["Long-term debt", "Accounts payable", "Shareholder's equity", "Land"],
+        "correct_option": "Accounts payable"
+    },
+    {
+        "question": "Which financial ratio is used to assess a company's ability to pay off its short-term obligations?",
+        "options": ["Current ratio", "Quick ratio", "Debt-to-equity ratio", "Gross margin ratio"],
+        "correct_option": "Current ratio"
+    },
+    {
+        "question": "What does the cash ratio measure?",
+        "options": ["Liquidity", "Profitability", "Leverage", "Efficiency"],
+        "correct_option": "Liquidity"
+    },
+    {
+        "question": "Which of the following would be classified as an asset?",
+        "options": ["Accounts payable", "Cash", "Loans payable", "Equity"],
+        "correct_option": "Cash"
+    },
+    {
+        "question": "What is the primary distinction between current and non-current assets?",
+        "options": ["Timeframe for conversion to cash", "Amount of debt", "Nature of ownership", "Type of expense"],
+        "correct_option": "Timeframe for conversion to cash"
+    },
+    {
+        "question": "Which of the following would typically be classified as a non-current liability?",
+        "options": ["Accounts payable", "Long-term debt", "Short-term loans", "Wages payable"],
+        "correct_option": "Long-term debt"
+    },
+    {
+        "question": "What is the formula for the acid-test ratio?",
+        "options": ["(Current assets - Inventory) / Current liabilities", "Current assets / Current liabilities", "Cash / Current liabilities", "Net income / Total assets"],
+        "correct_option": "(Current assets - Inventory) / Current liabilities"
+    },
+    {
+        "question": "Which of the following best describes 'equity' on a balance sheet?",
+        "options": ["The value of the company's assets", "The value of the company's liabilities", "The residual interest in assets after liabilities are deducted", "The total revenue earned by the company"],
+        "correct_option": "The residual interest in assets after liabilities are deducted"
+    },
+    {
+        "question": "What type of account is 'Accounts Receivable' on a balance sheet?",
+        "options": ["Asset", "Liability", "Equity", "Revenue"],
+        "correct_option": "Asset"
+    },
+    {
+        "question": "How is owner's equity calculated on the balance sheet?",
+        "options": ["Assets - Liabilities", "Assets + Liabilities", "Revenue - Expenses", "Current assets + Non-current assets"],
+        "correct_option": "Assets - Liabilities"
+    },
+    {
+        "question": "What does the debt-to-equity ratio measure?",
+        "options": ["The proportion of a company’s financing that comes from debt", "The company’s ability to pay short-term liabilities", "The company's profitability", "The value of a company's equity relative to its assets"],
+        "correct_option": "The proportion of a company’s financing that comes from debt"
+    },
+    {
+        "question": "Which of the following items would typically be found under non-current liabilities?",
+        "options": ["Accounts payable", "Wages payable", "Long-term debt", "Cash equivalents"],
+        "correct_option": "Long-term debt"
+    },
+    {
+        "question": "What is the 'return on assets' (ROA) ratio used to assess?",
+        "options": ["How much profit is generated from the company's assets", "The company’s ability to meet its short-term obligations", "The company's debt levels", "The company's gross profit margin"],
+        "correct_option": "How much profit is generated from the company's assets"
+    },
+    {
+        "question": "Which of the following is an example of a tangible asset?",
+        "options": ["Patent", "Goodwill", "Building", "Trademark"],
+        "correct_option": "Building"
+    },
+    {
+        "question": "What does the term 'working capital' refer to?",
+        "options": ["Current assets - Current liabilities", "Net income - Dividends", "Cash available for capital expenditures", "Revenue - Expenses"],
+        "correct_option": "Current assets - Current liabilities"
+    },
+    {
+        "question": "What would be included in 'current liabilities'?",
+        "options": ["Accounts payable", "Accounts receivable", "Long-term debt", "Common stock"],
+        "correct_option": "Accounts payable"
+    },
+    {
+        "question": "Which financial statement provides the details of a company's revenue and expenses?",
+        "options": ["Balance sheet", "Income statement", "Statement of cash flows", "Statement of changes in equity"],
+        "correct_option": "Income statement"
+    },
+    {
+        "question": "How is the 'price-to-earnings' (P/E) ratio calculated?",
+        "options": ["Market price per share / Earnings per share", "Earnings per share / Market price per share", "Market price per share / Book value per share", "Net income / Shareholder's equity"],
+        "correct_option": "Market price per share / Earnings per share"
+    },
+    {
+        "question": "What is the formula for calculating the net working capital?",
+        "options": ["Current assets / Current liabilities", "Total liabilities / Shareholder's equity", "Current assets - Current liabilities", "Long-term assets - Long-term liabilities"],
+        "correct_option": "Current assets - Current liabilities"
+    },
+    {
+        "question": "Which of the following would be considered a liability on the balance sheet?",
+        "options": ["Accounts payable", "Cash", "Goodwill", "Common stock"],
+        "correct_option": "Accounts payable"
+    },
+    {
+        "question": "What does the term 'solvency' refer to?",
+        "options": ["The ability of a company to meet its long-term financial obligations", "The ability of a company to pay short-term obligations", "The company's profitability", "The company's liquidity"],
+        "correct_option": "The ability of a company to meet its long-term financial obligations"
+    },
+    {
+        "question": "Which of the following ratios measures a company's ability to pay its short-term liabilities?",
+        "options": ["Current ratio", "Debt ratio", "Return on equity", "Gross margin ratio"],
+        "correct_option": "Current ratio"
+    },
+    {
+        "question": "What type of account is 'Inventory' on a balance sheet?",
+        "options": ["Asset", "Liability", "Equity", "Revenue"],
+        "correct_option": "Asset"
+    },
+    {
+        "question": "What is the formula for calculating return on investment (ROI)?",
+        "options": ["Net income / Total assets", "Net income / Shareholder's equity", "Net profit / Cost of investment", "Earnings before interest and taxes / Assets"],
+        "correct_option": "Net profit / Cost of investment"
+    },
+    {
+        "question": "Which of the following is considered a non-operating item on a balance sheet?",
+        "options": ["Cash", "Accounts payable", "Interest income", "Inventory"],
+        "correct_option": "Interest income"
+    },
+    {
+        "question": "What does 'liquidity' refer to in financial analysis?",
+        "options": ["A company's ability to pay its debts when they come due", "The profitability of a company", "The company's operating efficiency", "The value of a company’s long-term assets"],
+        "correct_option": "A company's ability to pay its debts when they come due"
+    },
+    {
+        "question": "Which section of the balance sheet would 'long-term investments' be classified?",
+        "options": ["Assets", "Liabilities", "Equity", "Revenue"],
+        "correct_option": "Assets"
+    },
+    {
+        "question": "Which of the following is a characteristic of current liabilities?",
+        "options": ["Due within one year or within the company's operating cycle", "Due after more than one year", "Represent ownership interest", "Include long-term debt"],
+        "correct_option": "Due within one year or within the company's operating cycle"
+    }
+]
 
-        # Remove the triple backticks and the "json" label
-        json_match = re.search(r'```json\n(.*)\n```', raw_text, re.DOTALL)
+    # Initialize session state variables
+    if 'score' not in st.session_state:
+        st.session_state.score = 0
+    if 'current_question' not in st.session_state:
+        st.session_state.current_question = None
+        st.session_state.options = []
+        st.session_state.correct_answer = None
+        st.session_state.answer_submitted = False
+        st.session_state.preloaded_index = 0  # Track preloaded questions
 
-        if json_match:
-            json_string = json_match.group(1)  # Extract the actual JSON content
-            try:
-                response = json.loads(json_string)  # Parse as JSON
-                
-                # Define the question and options
-                question = response["question"]
-                options = [response["option_1"], response["option_2"], response["option_3"], response["option_4"]]
-                correct_answer = response["correct_option"]
+    use_preloaded = st.session_state.preloaded_index < len(PRELOADED_QUESTIONS1)
 
-                # Display the question and multiple choice options
-                st.write("### Question:")
-                st.write(question)
-                
-                user_answer = st.radio("Select your answer:", options)
-                
-                # Placeholder for user input and score
-                if 'score' not in st.session_state:
-                    st.session_state.score = 0
-                
-                # Check if the user answer is correct and update the score
-                if st.button("Submit Answer"):
-                    if user_answer == correct_answer:
-                        st.session_state.score += 1
-                        st.write("Correct! Your score is:", st.session_state.score)
-                    else:
-                        st.write("Incorrect. The correct answer was:", correct_answer)
-                
-                # Display the current score
-                st.write("### Your Score:", st.session_state.score)
-                
-                # Placeholder for additional user interaction (text analysis)
-                user_input = st.text_area("Enter your analysis or comments here:")
-
-            except json.JSONDecodeError:
-                st.write("Error: The extracted text is not valid JSON.")
-                st.write("Extracted Content:")
-                st.write(json_string)
-
+    # Generate a new question if none exists
+    if st.session_state.current_question is None:
+        if use_preloaded:
+            # Use preloaded question
+            question_data = PRELOADED_QUESTIONS1[st.session_state.preloaded_index]
+            st.session_state.current_question = question_data["question"]
+            st.session_state.options = question_data["options"]
+            st.session_state.correct_answer = question_data["correct_option"]
         else:
-            st.write("Error: Could not extract JSON from the model response.")
-            st.write("Raw Response:")
-            st.write(raw_text)
+            # Generate an AI question (Placeholder for now)
+            generated_question = {
+                "question": "Placeholder: What is the purpose of a balance sheet?",
+                "options": ["Show revenue", "Track financial position", "Record daily transactions", "Calculate profit"],
+                "correct_option": "Track financial position"
+            }
+            st.session_state.current_question = generated_question["question"]
+            st.session_state.options = generated_question["options"]
+            st.session_state.correct_answer = generated_question["correct_option"]
 
-    if st.button("Submit Answer"):
-        st.write("You submitted the following analysis:")
-        st.write(user_input)
+    # Display the question
+    st.write("### Question:")
+    st.write(st.session_state.current_question)
 
-    if st.button("Back to Home"):
+    # Multiple-choice options
+    user_answer = st.radio("Select your answer:", st.session_state.options, key="user_answer")
+
+    # Submit Answer
+    if st.button("Submit Answer", key="submit_answer") and not st.session_state.answer_submitted:
+        if user_answer == st.session_state.correct_answer:
+            st.session_state.score += 1
+            st.write("✅ Correct! Your score is:", st.session_state.score)
+        else:
+            st.write("❌ Incorrect. The correct answer was:", st.session_state.correct_answer)
+
+        st.session_state.answer_submitted = True
+
+    # Show "Next Question" button **only after** user submits an answer
+    if st.session_state.answer_submitted:
+        if st.button("Next Question", key="next_question"):
+            if use_preloaded:
+                st.session_state.preloaded_index += 1  # Move to next preloaded question
+            st.session_state.current_question = None  # Reset question
+            st.session_state.answer_submitted = False  # Reset submission status
+            st.rerun()
+
+    # Display the score
+    st.write("### Your Score:", st.session_state.score)
+
+    # Back to Home Button
+    if st.button("Back to Home", key="back_home"):
         st.session_state.page = "home"
         st.rerun()
-
-
+        
 def show_ebitda_speed_run():
     """Displays the EBITDA Speed Run page."""
     st.subheader("💨 EBITDA Speed Run")
@@ -378,6 +585,20 @@ def show_horizontal_analysis():
         st.session_state.page = "home"
         st.rerun()
 
+def fetch_stock_data(ticker):
+    """Fetch historical stock data for the given ticker."""
+    stock = yf.Ticker(ticker)
+    hist = stock.history(period="1y", interval="3mo")  # Quarterly data
+    hist.reset_index(inplace=True)
+    return hist
+
+def plot_stock_chart(data, stock_name):
+    """Generate a stock chart using Plotly."""
+    fig = px.line(data, x="Date", y="Close", title=f"{stock_name} Stock Performance", markers=True)
+    fig.update_layout(xaxis_title="Date", yaxis_title="Closing Price", template="plotly_dark")
+    return fig
+
+
 def show_company_face_off():
     """Displays the Company Face-Off page."""
     st.subheader("🏢 Company Face-Off")
@@ -391,23 +612,146 @@ def show_company_face_off():
         "1. Compare the financial performance of two companies based on provided data.\n"
         "2. Make a decision on which company is performing better in terms of profitability, "
         "growth, and other financial metrics.\n"
-        "3. Submit your results to see if you made the right choice!"
+        "3. Make sure to use the graphs to answer the questions for specific companies."
     )
-    
-    # Placeholder for financial data (company comparison)
-    st.write("### Company Financial Data:")
-    # Placeholder for financial data comparison between companies
-    st.write("Company 1 and Company 2 data would appear here.")
-    
-    # Placeholder for user decision (e.g., which company performs better)
-    user_input = st.radio(
-        "Which company is performing better?",
-        ("Company 1", "Company 2")
-    )
-    if st.button("Submit Decision"):
-        st.write(f"You chose: {user_input}")
-    
-    if st.button("Back to Home"):
+    """Display two user-input companies for the face-off game."""
+    st.header("Company Face-Off!")
+
+    stock1 = st.text_input("Enter first stock ticker (e.g., AAPL):", value="AAPL").upper()
+    stock2 = st.text_input("Enter second stock ticker (e.g., MSFT):", value="MSFT").upper()
+
+    if st.button("Compare Stocks"):
+        data1 = fetch_stock_data(stock1)
+        data2 = fetch_stock_data(stock2)
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader(stock1)
+            chart1 = plot_stock_chart(data1, stock1)
+            if chart1:
+                st.plotly_chart(chart1)
+
+        with col2:
+            st.subheader(stock2)
+            chart2 = plot_stock_chart(data2, stock2)
+            if chart2:
+                st.plotly_chart(chart2)
+
+    PRELOADED_QUESTIONS = [
+    {
+        "question": "Which company saw the largest percentage gain in stock price last month?",
+        "options": ["TSLA", "AAPL", "AMZN", "META"],
+        "correct_answer": "TSLA"
+    },
+    {
+        "question": "Which stock had the highest trading volume last week?",
+        "options": ["MSFT", "GOOGL", "NFLX", "AMZN"],
+        "correct_answer": "AMZN"
+    },
+    {
+        "question": "What was the stock price of Amazon (AMZN) at the end of last quarter?",
+        "options": ["$145", "$170", "$160", "$155"],
+        "correct_answer": "$160"
+    },
+    {
+        "question": "Which company experienced the largest drop in stock price last year?",
+        "options": ["GOOGL", "TSLA", "META", "AAPL"],
+        "correct_answer": "META"
+    },
+    {
+        "question": "Which company has the highest quarterly earnings in Q3 2023?",
+        "options": ["MSFT", "AAPL", "GOOGL", "AMZN"],
+        "correct_answer": "AAPL"
+    },
+    {
+        "question": "Which company had the best stock performance in 2023?",
+        "options": ["MSFT", "GOOGL", "AAPL", "TSLA"],
+        "correct_answer": "MSFT"
+    },
+    {
+        "question": "Which company’s stock price had the most volatility last month?",
+        "options": ["TSLA", "AAPL", "META", "AMZN"],
+        "correct_answer": "TSLA"
+    },
+    {
+        "question": "Which company announced the most significant product launch last quarter?",
+        "options": ["AAPL", "AMZN", "GOOGL", "MSFT"],
+        "correct_answer": "AAPL"
+    },
+    {
+        "question": "Which of these companies is listed on the NASDAQ-100 index?",
+        "options": ["AMZN", "XOM", "BA", "CVX"],
+        "correct_answer": "AMZN"
+    },
+    {
+        "question": "Which stock had the highest return on investment (ROI) last year?",
+        "options": ["TSLA", "GOOGL", "AAPL", "AMZN"],
+        "correct_answer": "TSLA"
+    }
+]
+
+    if 'score' not in st.session_state:
+        st.session_state.score = 0
+    if 'current_question' not in st.session_state:
+        st.session_state.current_question = None
+        st.session_state.options = []
+        st.session_state.correct_answer = None
+        st.session_state.answer_submitted = False
+        st.session_state.preloaded_index = 0  # Track preloaded questions
+
+    use_preloaded = st.session_state.preloaded_index < len(PRELOADED_QUESTIONS)
+
+    # Generate a new question if none exists
+    if st.session_state.current_question is None:
+        if use_preloaded:
+            # Use preloaded question
+            question_data = PRELOADED_QUESTIONS[st.session_state.preloaded_index]
+            st.session_state.current_question = question_data["question"]
+            st.session_state.options = question_data["options"]
+            st.session_state.correct_answer = question_data["correct_answer"]
+        else:
+            # Generate an AI question (Placeholder for now)
+            generated_question = {
+                "question": "Placeholder: What is the purpose of a balance sheet?",
+                "options": ["Show revenue", "Track financial position", "Record daily transactions", "Calculate profit"],
+                "correct_answer": "Track financial position"
+            }
+            st.session_state.current_question = generated_question["question"]
+            st.session_state.options = generated_question["options"]
+            st.session_state.correct_answer = generated_question["correct_answer"]
+
+    # Display the question
+    st.write("### Question:")
+    st.write(st.session_state.current_question)
+
+    # Multiple-choice options
+    user_answer = st.radio("Select your answer:", st.session_state.options, key="user_answer")
+
+    # Submit Answer
+    if st.button("Submit Answer", key="submit_answer") and not st.session_state.answer_submitted:
+        if user_answer == st.session_state.correct_answer:
+            st.session_state.score += 1
+            st.write("✅ Correct! Your score is:", st.session_state.score)
+        else:
+            st.write("❌ Incorrect. The correct answer was:", st.session_state.correct_answer)
+
+        st.session_state.answer_submitted = True
+
+    # Show "Next Question" button **only after** user submits an answer
+    if st.session_state.answer_submitted:
+        if st.button("Next Question", key="next_question"):
+            if use_preloaded:
+                st.session_state.preloaded_index += 1  # Move to next preloaded question
+            st.session_state.current_question = None  # Reset question
+            st.session_state.answer_submitted = False  # Reset submission status
+            st.rerun()
+
+    # Display the score
+    st.write("### Your Score:", st.session_state.score)
+
+    # Back to Home Button
+    if st.button("Back to Home", key="back_home"):
         st.session_state.page = "home"
         st.rerun()
 
@@ -442,7 +786,7 @@ def main():
         elif st.session_state.page == "horizontal_analysis_battle":
             playHorizontalAnalysisGame()
         elif st.session_state.page == "company_face_off":
-            playfaceOffGame()
+            show_company_face_off()
 
 if __name__ == "__main__":
     main()
