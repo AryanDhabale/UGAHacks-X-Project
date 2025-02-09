@@ -64,7 +64,8 @@ def playEbidtaGame():
 
     with left_col:
         st.subheader("Income Statement")
-        st.table(income_df)
+        placeholder = st.empty()
+        placeholder.text("Drop an image or PDF here later...")
 
     # --- Right Column: User Input Fields for EBIDTA Components ---
     with right_col:
