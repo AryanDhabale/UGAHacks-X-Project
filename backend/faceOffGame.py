@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-def play_HA_game():
+def playfaceOffGame():
     """
     Launches the Horizontal Analysis Battle game where working professionals can compare
     financial metrics of two companies side by side.
@@ -113,7 +113,3 @@ def play_HA_game():
     with option_cols[3]:
         if st.button("D: None of the above", key="option_d"):
             st.info("Option D selected.")
-
-# For standalone testing, you can uncomment the following lines:
-# if __name__ == '__main__':
-#     play_finance_game()

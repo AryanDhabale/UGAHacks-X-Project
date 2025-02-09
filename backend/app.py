@@ -1,7 +1,10 @@
 import streamlit as st
 import requests
 from datetime import datetime
-from haGame import play_HA_game
+from faceOffGame import playfaceOffGame
+from balanceSheet import playBalanceSheetGame
+from horizontalGame import playHorizontalAnalysisGame
+from ebidtaGame import playEbidtaGame
 st.set_page_config(layout="wide")
 
 # Simulated user data for login
@@ -280,13 +283,13 @@ def main():
         if st.session_state.page == "home":
             show_dashboard(simulated_user_data)
         elif st.session_state.page == "balance_sheet_challenge":
-            show_balance_sheet_challenge()
+            playBalanceSheetGame()
         elif st.session_state.page == "ebitda_speed_run":
-            show_ebitda_speed_run()
+            playEbidtaGame()
         elif st.session_state.page == "horizontal_analysis_battle":
-            play_HA_game()
+            playHorizontalAnalysisGame()
         elif st.session_state.page == "company_face_off":
-            show_company_face_off()
+            playfaceOffGame()
 
 if __name__ == "__main__":
     main()
