@@ -1,28 +1,26 @@
-import requests
+import streamlit as st
 import pandas as pd
+import requests
+import pymongo
+import json
+import os
+from datetime import datetime
+from random import sample
+from google import genai
+import fitz
+import PyPDF2
+from io import BytesIO
+import base64;
 
-ALPHA_VANTAGE_API_KEY = "IJ3GJBXDGDD3FQ1X"
-ALPHA_VANTAGE_API_URL = "https://www.alphavantage.co/query"
+GEMINI_API_URL = "https://api.gemini.com/v1/pubticker/BTCUSD"  # Example API endpoint for Gemini
+client1 = genai.Client(api_key="AIzaSyBHDvrG7RlUhkGPTuPG6LzUW8fG_Hqcbw8")
 
-# Fetch balance sheet data for IBM
-url = f"{ALPHA_VANTAGE_API_URL}?function=BALANCE_SHEET&symbol=IBM&apikey={ALPHA_VANTAGE_API_KEY}"
-r = requests.get(url)
-data = r.json()
-
-# Extract annual balance sheets
-if "annualReports" in data:
-    balance_sheets = data["annualReports"]
+complete_prompt = f"Create a question and 4 answer choices about this balance sheet. Return the answer as only a json with the keys question, option_1, option_2, option_3, option_4, and correct_option"
     
-    # Convert list of dictionaries into DataFrame
-    df = pd.DataFrame(balance_sheets)
-    
-    # Set 'fiscalDateEnding' as the index and transpose so dates become columns
-    df.set_index("fiscalDateEnding", inplace=True)
-    df = df.T  # Transpose the DataFrame
+        # Call the Gemini API model to generate content
+responseText = client1.models.generate_content(
+    model="gemini-2.0-flash",  # Replace with the desired model if different
+    contents=complete_prompt
+)
 
-    # Filter only dates before '2019-11-29'
-    df = df.loc[:, df.columns > '2024-02-09']
-
-    print(df)
-else:
-    print("Error retrieving balance sheet data.")
+print(responseText)
