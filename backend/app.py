@@ -1,6 +1,16 @@
 import streamlit as st
+import pandas as pd
 import requests
+import pymongo
+import json
+import os
 from datetime import datetime
+from random import sample
+from google import genai
+import fitz
+import PyPDF2
+from io import BytesIO
+import base64;
 st.set_page_config(layout="wide")
 
 # Simulated user data for login
@@ -12,10 +22,56 @@ simulated_user_data = {
 
 # Gemini API setup (for example)
 GEMINI_API_URL = "https://api.gemini.com/v1/pubticker/BTCUSD"  # Example API endpoint for Gemini
+client1 = genai.Client(api_key="AIzaSyBHDvrG7RlUhkGPTuPG6LzUW8fG_Hqcbw8")
 
 # AlphaVantage API setup (for financial data)
 ALPHA_VANTAGE_API_KEY = "IJ3GJBXDGDD3FQ1X"
 ALPHA_VANTAGE_API_URL = "https://www.alphavantage.co/query"
+
+# MongoDB Connection
+MONGO_URI = "mongodb+srv://samarjeetpurba:cyttZfEIUfkxEE9W@hacksxcluster.wm7pl.mongodb.net/datastorage?retryWrites=true&w=majority"
+client = pymongo.MongoClient(MONGO_URI)
+db = client["datastorage"]
+questions_collection = db["gamedata1"]
+
+def get_gemini_ai_response(prompt):
+    # Add the preset instruction to the prompt
+    complete_prompt = f"{prompt}\n\nPlease limit answers to financing, economics, accounting, or similar topics. Be detailed but not too long either."
+    
+    # Call the Gemini API model to generate content
+    response = client1.models.generate_content(
+        model="gemini-2.0-flash",  # Replace with the desired model if different
+        contents=complete_prompt
+    )
+    
+    # Return the generated response text
+    return response.text
+
+def extract_text_from_pdf(pdf_file):
+    """Extract text using PyPDF2 as a backup."""
+    try:
+        pdf_reader = PyPDF2.PdfReader(pdf_file)
+        pdf_text = ""
+        
+        for page in pdf_reader.pages:
+            pdf_text += page.extract_text()
+        
+        return pdf_text
+    except Exception as e:
+        return f"Error using PyPDF2: {str(e)}"
+
+def generate_balance_sheet(prompt):
+    # Add the preset instruction to the prompt
+    complete_prompt = f"clean and convert this into a table of just the balance sheet. Limit the answer to just a table of the balance sheet and a title of it above:{prompt}"
+    
+    # Call the Gemini API model to generate content
+    response = client1.models.generate_content(
+        model="gemini-2.0-flash",  # Replace with the desired model if different
+        contents=complete_prompt
+    )
+    
+    # Return the generated response text
+    return response.text
 
 def display_financial_data():
     """Displays the Gemini and AlphaVantage financial data"""
@@ -106,6 +162,27 @@ def show_dashboard(simulated_user_data):
             st.session_state.page = page_selection.lower().replace(" ", "_")
             st.rerun()
 
+    with st.container():
+        st.subheader("🔷 Questions? Ask here!")
+        symbol1 = st.text_input("Enter a prompt", "What is finance?")  # Default prompt
+    
+        if st.button("Get Response"):
+            # Get the AI response when the button is pressed
+            ai_response = get_gemini_ai_response(symbol1)
+        
+            # Display the response in the Streamlit app
+            st.write(ai_response)
+
+    uploaded_pdf = st.file_uploader("Upload the Balance Sheet PDF", type=["pdf"])
+
+    if uploaded_pdf is not None:
+        # Extract text from the uploaded PDF
+        text = extract_text_from_pdf(uploaded_pdf)
+        sheet = generate_balance_sheet(text)
+        # Display the extracted text
+        st.subheader("Extracted Text from Balance Sheet")
+        st.text_area("Balance Sheet Text", sheet, height=400)
+
 def fetch_crypto_price():
     """Fetches the BTC price from Gemini API."""
     try:
@@ -141,6 +218,7 @@ def show_balance_sheet_challenge():
         "Welcome to the Balance Sheet Challenge! In this challenge, you will analyze the "
         "balance sheet of a company and answer questions about its financial position."
     )
+
     # Frame for the challenge content
     st.write("### Instructions:")
     st.write(
@@ -148,19 +226,93 @@ def show_balance_sheet_challenge():
         "2. Answer the questions related to the company's assets, liabilities, and equity.\n"
         "3. Submit your answers to get feedback on your performance."
     )
-    st.write("### Balance Sheet Data:")
-    # Placeholder for balance sheet data (you can use tables, charts, or images here)
-    st.write("Balance Sheet Data would appear here.")
 
-    # Placeholder for user interaction (e.g., answers or choices)
-    user_input = st.text_area("Enter your answer or analysis here:")
+    st.write("### Balance Sheet Data:")
+
+    # Placeholder for the user-uploaded PDF file
+    uploaded_pdf = st.file_uploader("Upload Balance Sheet PDF", type=["pdf"])
+    '''
+    if uploaded_pdf is not None:
+        # Convert the uploaded file into a local URL
+        pdf_url = f"data:application/pdf;base64,{uploaded_pdf.getvalue().encode('base64')}"
+        
+        # HTML for displaying the PDF using PDF.js
+        pdf_html = f"""
+        <iframe src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js" width="100%" height="600px">
+            <p>Your browser does not support iframes. You can <a href="{pdf_url}" download>download the PDF</a> to view it.</p>
+        </iframe>
+        """
+
+        # Render the HTML in Streamlit
+        st.components.v1.html(pdf_html, height=600)
+
+        # Read t
+    '''
+    if uploaded_pdf is not None:
+        # Open the uploaded PDF with PyMuPDF (fitz)
+        pdf_document = fitz.open(stream=uploaded_pdf.read(), filetype="pdf")
+        
+        # Extract the first page of the PDF as an image
+        page = pdf_document.load_page(0)  # load the first page (0-indexed)
+        pix = page.get_pixmap()  # render page to a pixmap (image)
+        
+        # Convert the pixmap to a PIL image
+        img = pix.pil_image()  # PIL Image object
+        
+        # Display the image in Streamlit
+        st.image(img, caption="Balance Sheet", use_column_width=True)
+
+        # Extract text from the uploaded PDF
+        text = extract_text_from_pdf(uploaded_pdf)
+        sheet = generate_balance_sheet(text)
+        complete_prompt = f"Create a question and 4 answer choices about this balance sheet. Return the answer as only a json with the keys question, option_1, option_2, option_3, option_4, and correct_option {sheet}"
+    
+        # Call the Gemini API model to generate content
+        responseText = client1.models.generate_content(
+            model="gemini-2.0-flash",  # Replace with the desired model if different
+            contents=complete_prompt
+        )
+
+        response = json.loads(responseText.text)
+        
+        # Define the question and options
+        question = response["question"]
+        options = [response["option_1"], response["option_2"], response["option_3"], response["option_4"]]
+        correct_answer = response["correct_option"]
+
+        # Display the question and multiple choice options
+        st.write("### Question:")
+        st.write(question)
+        
+        user_answer = st.radio("Select your answer:", options)
+        
+        # Placeholder for user input and score
+        if 'score' not in st.session_state:
+            st.session_state.score = 0
+        
+        # Check if the user answer is correct and update the score
+        if st.button("Submit Answer"):
+            if user_answer == correct_answer:
+                st.session_state.score += 1
+                st.write("Correct! Your score is:", st.session_state.score)
+            else:
+                st.write("Incorrect. The correct answer was:", correct_answer)
+        
+        # Display the current score
+        st.write("### Your Score:", st.session_state.score)
+        
+        # Placeholder for additional user interaction (text analysis)
+        user_input = st.text_area("Enter your analysis or comments here:")
+    
+    
     if st.button("Submit Answer"):
         st.write("You submitted the following analysis:")
         st.write(user_input)
-    
+
     if st.button("Back to Home"):
         st.session_state.page = "home"
         st.rerun()
+
 
 def show_ebitda_speed_run():
     """Displays the EBITDA Speed Run page."""
