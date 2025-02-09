@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from datetime import datetime
+from haGame import play_HA_game
 st.set_page_config(layout="wide")
 
 # Simulated user data for login
@@ -283,7 +284,7 @@ def main():
         elif st.session_state.page == "ebitda_speed_run":
             show_ebitda_speed_run()
         elif st.session_state.page == "horizontal_analysis_battle":
-            show_horizontal_analysis()
+            play_HA_game()
         elif st.session_state.page == "company_face_off":
             show_company_face_off()
 
