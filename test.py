@@ -22,5 +22,5 @@ responseText = client1.models.generate_content(
     model="gemini-2.0-flash",  # Replace with the desired model if different
     contents=complete_prompt
 )
-read = json.load(responseText)
-print(read)
+
+print(responseText)

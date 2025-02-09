@@ -235,23 +235,7 @@ def show_balance_sheet_challenge():
 
     # Placeholder for the user-uploaded PDF file
     uploaded_pdf = st.file_uploader("Upload Balance Sheet PDF", type=["pdf"])
-    '''
-    if uploaded_pdf is not None:
-        # Convert the uploaded file into a local URL
-        pdf_url = f"data:application/pdf;base64,{uploaded_pdf.getvalue().encode('base64')}"
-        
-        # HTML for displaying the PDF using PDF.js
-        pdf_html = f"""
-        <iframe src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js" width="100%" height="600px">
-            <p>Your browser does not support iframes. You can <a href="{pdf_url}" download>download the PDF</a> to view it.</p>
-        </iframe>
-        """
-
-        # Render the HTML in Streamlit
-        st.components.v1.html(pdf_html, height=600)
-
-        # Read t
-    '''
+    
     if uploaded_pdf is not None:
         # Open the uploaded PDF with PyMuPDF (fitz)
         pdf_document = fitz.open(stream=uploaded_pdf.read(), filetype="pdf")
@@ -264,7 +248,7 @@ def show_balance_sheet_challenge():
         img = pix.pil_image()  # PIL Image object
         
         # Display the image in Streamlit
-        st.image(img, caption="Balance Sheet", use_column_width=True)
+        st.image(img, caption="Balance Sheet", use_container_width=True)
 
         # Extract text from the uploaded PDF
         text = extract_text_from_pdf(uploaded_pdf)
@@ -277,38 +261,55 @@ def show_balance_sheet_challenge():
             contents=complete_prompt
         )
 
-        response = json.loads(responseText.text)
-        
-        # Define the question and options
-        question = response["question"]
-        options = [response["option_1"], response["option_2"], response["option_3"], response["option_4"]]
-        correct_answer = response["correct_option"]
+        raw_text = responseText.candidates[0].content.parts[0].text  
 
-        # Display the question and multiple choice options
-        st.write("### Question:")
-        st.write(question)
-        
-        user_answer = st.radio("Select your answer:", options)
-        
-        # Placeholder for user input and score
-        if 'score' not in st.session_state:
-            st.session_state.score = 0
-        
-        # Check if the user answer is correct and update the score
-        if st.button("Submit Answer"):
-            if user_answer == correct_answer:
-                st.session_state.score += 1
-                st.write("Correct! Your score is:", st.session_state.score)
-            else:
-                st.write("Incorrect. The correct answer was:", correct_answer)
-        
-        # Display the current score
-        st.write("### Your Score:", st.session_state.score)
-        
-        # Placeholder for additional user interaction (text analysis)
-        user_input = st.text_area("Enter your analysis or comments here:")
-    
-    
+        # Remove the triple backticks and the "json" label
+        json_match = re.search(r'```json\n(.*)\n```', raw_text, re.DOTALL)
+
+        if json_match:
+            json_string = json_match.group(1)  # Extract the actual JSON content
+            try:
+                response = json.loads(json_string)  # Parse as JSON
+                
+                # Define the question and options
+                question = response["question"]
+                options = [response["option_1"], response["option_2"], response["option_3"], response["option_4"]]
+                correct_answer = response["correct_option"]
+
+                # Display the question and multiple choice options
+                st.write("### Question:")
+                st.write(question)
+                
+                user_answer = st.radio("Select your answer:", options)
+                
+                # Placeholder for user input and score
+                if 'score' not in st.session_state:
+                    st.session_state.score = 0
+                
+                # Check if the user answer is correct and update the score
+                if st.button("Submit Answer"):
+                    if user_answer == correct_answer:
+                        st.session_state.score += 1
+                        st.write("Correct! Your score is:", st.session_state.score)
+                    else:
+                        st.write("Incorrect. The correct answer was:", correct_answer)
+                
+                # Display the current score
+                st.write("### Your Score:", st.session_state.score)
+                
+                # Placeholder for additional user interaction (text analysis)
+                user_input = st.text_area("Enter your analysis or comments here:")
+
+            except json.JSONDecodeError:
+                st.write("Error: The extracted text is not valid JSON.")
+                st.write("Extracted Content:")
+                st.write(json_string)
+
+        else:
+            st.write("Error: Could not extract JSON from the model response.")
+            st.write("Raw Response:")
+            st.write(raw_text)
+
     if st.button("Submit Answer"):
         st.write("You submitted the following analysis:")
         st.write(user_input)
@@ -435,7 +436,7 @@ def main():
         if st.session_state.page == "home":
             show_dashboard(simulated_user_data)
         elif st.session_state.page == "balance_sheet_challenge":
-            playBalanceSheetGame()
+            show_balance_sheet_challenge()
         elif st.session_state.page == "ebitda_speed_run":
             playEbidtaGame()
         elif st.session_state.page == "horizontal_analysis_battle":
