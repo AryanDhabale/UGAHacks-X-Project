@@ -1,0 +1,197 @@
+[
+    {
+        "question": "What is the primary purpose of a balance sheet?",
+        "options": ["Show revenue", "Track financial position", "Record daily transactions", "Calculate profit"],
+        "correct_option": "Track financial position"
+    },
+    {
+        "question": "Which of the following represents liabilities in a balance sheet?",
+        "options": ["Assets", "Equity", "Debt", "Revenue"],
+        "correct_option": "Debt"
+    },
+    {
+        "question": "Which ratio is calculated by dividing total liabilities by total assets?",
+        "options": ["Current ratio", "Debt-to-equity ratio", "Debt ratio", "Quick ratio"],
+        "correct_option": "Debt ratio"
+    },
+    {
+        "question": "Which section of the balance sheet includes retained earnings?",
+        "options": ["Assets", "Liabilities", "Equity", "Revenue"],
+        "correct_option": "Equity"
+    },
+    {
+        "question": "What does the current ratio measure?",
+        "options": ["Liquidity", "Profitability", "Efficiency", "Leverage"],
+        "correct_option": "Liquidity"
+    },
+    {
+        "question": "Which of the following would be classified as a non-current asset?",
+        "options": ["Inventory", "Accounts receivable", "Buildings", "Cash"],
+        "correct_option": "Buildings"
+    },
+    {
+        "question": "What is the formula for the return on equity (ROE) ratio?",
+        "options": ["Net income / Total assets", "Net income / Shareholder's equity", "Operating income / Total liabilities", "Gross profit / Net revenue"],
+        "correct_option": "Net income / Shareholder's equity"
+    },
+    {
+        "question": "Which of the following is NOT a part of shareholder's equity?",
+        "options": ["Common stock", "Retained earnings", "Accounts payable", "Additional paid-in capital"],
+        "correct_option": "Accounts payable"
+    },
+    {
+        "question": "What does the quick ratio exclude from current assets?",
+        "options": ["Cash", "Inventory", "Receivables", "Prepaid expenses"],
+        "correct_option": "Inventory"
+    },
+    {
+        "question": "What does a high debt-to-equity ratio indicate?",
+        "options": ["A company relies more on equity financing than debt", "A company relies more on debt financing than equity", "A company has low financial risk", "A company is highly liquid"],
+        "correct_option": "A company relies more on debt financing than equity"
+    },
+    {
+        "question": "Which of the following is an example of an intangible asset on the balance sheet?",
+        "options": ["Buildings", "Goodwill", "Accounts receivable", "Inventory"],
+        "correct_option": "Goodwill"
+    },
+    {
+        "question": "Which item would most likely be found under current liabilities?",
+        "options": ["Long-term debt", "Accounts payable", "Shareholder's equity", "Land"],
+        "correct_option": "Accounts payable"
+    },
+    {
+        "question": "Which financial ratio is used to assess a company's ability to pay off its short-term obligations?",
+        "options": ["Current ratio", "Quick ratio", "Debt-to-equity ratio", "Gross margin ratio"],
+        "correct_option": "Current ratio"
+    },
+    {
+        "question": "What does the cash ratio measure?",
+        "options": ["Liquidity", "Profitability", "Leverage", "Efficiency"],
+        "correct_option": "Liquidity"
+    },
+    {
+        "question": "Which of the following would be classified as an asset?",
+        "options": ["Accounts payable", "Cash", "Loans payable", "Equity"],
+        "correct_option": "Cash"
+    },
+    {
+        "question": "What is the primary distinction between current and non-current assets?",
+        "options": ["Timeframe for conversion to cash", "Amount of debt", "Nature of ownership", "Type of expense"],
+        "correct_option": "Timeframe for conversion to cash"
+    },
+    {
+        "question": "Which of the following would typically be classified as a non-current liability?",
+        "options": ["Accounts payable", "Long-term debt", "Short-term loans", "Wages payable"],
+        "correct_option": "Long-term debt"
+    },
+    {
+        "question": "What is the formula for the acid-test ratio?",
+        "options": ["(Current assets - Inventory) / Current liabilities", "Current assets / Current liabilities", "Cash / Current liabilities", "Net income / Total assets"],
+        "correct_option": "(Current assets - Inventory) / Current liabilities"
+    },
+    {
+        "question": "Which of the following best describes 'equity' on a balance sheet?",
+        "options": ["The value of the company's assets", "The value of the company's liabilities", "The residual interest in assets after liabilities are deducted", "The total revenue earned by the company"],
+        "correct_option": "The residual interest in assets after liabilities are deducted"
+    },
+    {
+        "question": "What type of account is 'Accounts Receivable' on a balance sheet?",
+        "options": ["Asset", "Liability", "Equity", "Revenue"],
+        "correct_option": "Asset"
+    },
+    {
+        "question": "How is owner's equity calculated on the balance sheet?",
+        "options": ["Assets - Liabilities", "Assets + Liabilities", "Revenue - Expenses", "Current assets + Non-current assets"],
+        "correct_option": "Assets - Liabilities"
+    },
+    {
+        "question": "What does the debt-to-equity ratio measure?",
+        "options": ["The proportion of a company’s financing that comes from debt", "The company’s ability to pay short-term liabilities", "The company's profitability", "The value of a company's equity relative to its assets"],
+        "correct_option": "The proportion of a company’s financing that comes from debt"
+    },
+    {
+        "question": "Which of the following items would typically be found under non-current liabilities?",
+        "options": ["Accounts payable", "Wages payable", "Long-term debt", "Cash equivalents"],
+        "correct_option": "Long-term debt"
+    },
+    {
+        "question": "What is the 'return on assets' (ROA) ratio used to assess?",
+        "options": ["How much profit is generated from the company's assets", "The company’s ability to meet its short-term obligations", "The company's debt levels", "The company's gross profit margin"],
+        "correct_option": "How much profit is generated from the company's assets"
+    },
+    {
+        "question": "Which of the following is an example of a tangible asset?",
+        "options": ["Patent", "Goodwill", "Building", "Trademark"],
+        "correct_option": "Building"
+    },
+    {
+        "question": "What does the term 'working capital' refer to?",
+        "options": ["Current assets - Current liabilities", "Net income - Dividends", "Cash available for capital expenditures", "Revenue - Expenses"],
+        "correct_option": "Current assets - Current liabilities"
+    },
+    {
+        "question": "What would be included in 'current liabilities'?",
+        "options": ["Accounts payable", "Accounts receivable", "Long-term debt", "Common stock"],
+        "correct_option": "Accounts payable"
+    },
+    {
+        "question": "Which financial statement provides the details of a company's revenue and expenses?",
+        "options": ["Balance sheet", "Income statement", "Statement of cash flows", "Statement of changes in equity"],
+        "correct_option": "Income statement"
+    },
+    {
+        "question": "How is the 'price-to-earnings' (P/E) ratio calculated?",
+        "options": ["Market price per share / Earnings per share", "Earnings per share / Market price per share", "Market price per share / Book value per share", "Net income / Shareholder's equity"],
+        "correct_option": "Market price per share / Earnings per share"
+    },
+    {
+        "question": "What is the formula for calculating the net working capital?",
+        "options": ["Current assets / Current liabilities", "Total liabilities / Shareholder's equity", "Current assets - Current liabilities", "Long-term assets - Long-term liabilities"],
+        "correct_option": "Current assets - Current liabilities"
+    },
+    {
+        "question": "Which of the following would be considered a liability on the balance sheet?",
+        "options": ["Accounts payable", "Cash", "Goodwill", "Common stock"],
+        "correct_option": "Accounts payable"
+    },
+    {
+        "question": "What does the term 'solvency' refer to?",
+        "options": ["The ability of a company to meet its long-term financial obligations", "The ability of a company to pay short-term obligations", "The company's profitability", "The company's liquidity"],
+        "correct_option": "The ability of a company to meet its long-term financial obligations"
+    },
+    {
+        "question": "Which of the following ratios measures a company's ability to pay its short-term liabilities?",
+        "options": ["Current ratio", "Debt ratio", "Return on equity", "Gross margin ratio"],
+        "correct_option": "Current ratio"
+    },
+    {
+        "question": "What type of account is 'Inventory' on a balance sheet?",
+        "options": ["Asset", "Liability", "Equity", "Revenue"],
+        "correct_option": "Asset"
+    },
+    {
+        "question": "What is the formula for calculating return on investment (ROI)?",
+        "options": ["Net income / Total assets", "Net income / Shareholder's equity", "Net profit / Cost of investment", "Earnings before interest and taxes / Assets"],
+        "correct_option": "Net profit / Cost of investment"
+    },
+    {
+        "question": "Which of the following is considered a non-operating item on a balance sheet?",
+        "options": ["Cash", "Accounts payable", "Interest income", "Inventory"],
+        "correct_option": "Interest income"
+    },
+    {
+        "question": "What does 'liquidity' refer to in financial analysis?",
+        "options": ["A company's ability to pay its debts when they come due", "The profitability of a company", "The company's operating efficiency", "The value of a company’s long-term assets"],
+        "correct_option": "A company's ability to pay its debts when they come due"
+    },
+    {
+        "question": "Which section of the balance sheet would 'long-term investments' be classified?",
+        "options": ["Assets", "Liabilities", "Equity", "Revenue"],
+        "correct_option": "Assets"
+    },
+    {
+        "question": "Which of the following is a characteristic of current liabilities?",
+        "options": ["Due within one year or within the company's operating cycle", "Due after more than one year", "Represent ownership interest", "Include long-term debt"],
+        "correct_option": "Due within one year or within the company's operating cycle"
+    }
+]
