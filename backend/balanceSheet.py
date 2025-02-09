@@ -29,27 +29,8 @@ def playBalanceSheetGame():
     
     st.markdown("## Company Balance Sheet")
     
-    # Dummy Balance Sheet Data with an Intentional Error:
-    # In this example, 'Accounts Payable' is misclassified under Assets.
-    data = {
-        "Category": [
-            "Asset", "Asset", "Asset", "Asset", 
-            "Liability", "Liability", "Equity", "Equity"
-        ],
-        "Item": [
-            "Cash", "Inventory", "Accounts Receivable", "Accounts Payable", 
-            "Long Term Debt", "Accrued Expenses", "Common Stock", "Retained Earnings"
-        ],
-        "Value": [
-            500000, 300000, 200000, 50000, 
-            400000, 75000, 200000, 375000
-        ]
-    }
-    
-    balance_sheet_df = pd.DataFrame(data)
-    
-    # Display the balance sheet as a table
-    st.table(balance_sheet_df)
+    placeholder = st.empty()
+    placeholder.text("Drop an image or PDF here later...")
     
     st.markdown("---")
     

@@ -34,34 +34,6 @@ def playEbidtaGame():
     # Create two columns: left for the income statement, right for input fields.
     left_col, right_col = st.columns(2)
 
-    # --- Left Column: Display the Income Statement ---
-    # Dummy income statement data.
-    income_data = {
-        "Item": [
-            "Revenue",
-            "Cost of Goods Sold",
-            "Gross Profit",
-            "Operating Expenses",
-            "Net Income",            # This will serve as the 'E' in EBIDTA.
-            "Interest Expense",      # 'I'
-            "Taxes",                 # 'T'
-            "Depreciation",          # 'D'
-            "Amortization"           # 'A'
-        ],
-        "Amount ($)": [
-            1000000,
-            600000,
-            400000,
-            150000,
-            200000,   # Net Income (Earnings)
-            20000,    # Interest Expense
-            30000,    # Taxes
-            40000,    # Depreciation
-            10000     # Amortization
-        ]
-    }
-    income_df = pd.DataFrame(income_data)
-
     with left_col:
         st.subheader("Income Statement")
         placeholder = st.empty()
