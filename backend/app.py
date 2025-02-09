@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from datetime import datetime
+st.set_page_config(layout="wide")
 
 # Simulated user data for login
 simulated_user_data = {
@@ -31,7 +32,7 @@ def display_financial_data():
     # Get stock data from AlphaVantage
     symbol = st.text_input("Enter Stock Symbol", "AAPL")  # Example symbol
     if symbol:
-        params = {
+        params = {  
             "function": "TIME_SERIES_DAILY",
             "symbol": symbol,
             "apikey": ALPHA_VANTAGE_API_KEY
@@ -98,7 +99,7 @@ def show_dashboard(simulated_user_data):
         st.subheader("🎮 Select a Challenge")
         page_selection = st.selectbox(
             "Choose an option",
-            ["select", "Balance Sheet Challenge", "EBITDA Speed Run", "Horizontal Analysis Battle", "Company Face-Off"]
+            ["select", "Balance Sheet Challenge", "EBITDA Speed Run", "Horizontal Analysis Battle", "Company Face Off"]
         )
 
         if page_selection != "select":
@@ -133,6 +134,126 @@ def fetch_stock_price(symbol):
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
 
+def show_balance_sheet_challenge():
+    """Displays the Balance Sheet Challenge page."""
+    st.subheader("📊 Balance Sheet Challenge")
+    st.write(
+        "Welcome to the Balance Sheet Challenge! In this challenge, you will analyze the "
+        "balance sheet of a company and answer questions about its financial position."
+    )
+    # Frame for the challenge content
+    st.write("### Instructions:")
+    st.write(
+        "1. Review the balance sheet provided.\n"
+        "2. Answer the questions related to the company's assets, liabilities, and equity.\n"
+        "3. Submit your answers to get feedback on your performance."
+    )
+    st.write("### Balance Sheet Data:")
+    # Placeholder for balance sheet data (you can use tables, charts, or images here)
+    st.write("Balance Sheet Data would appear here.")
+
+    # Placeholder for user interaction (e.g., answers or choices)
+    user_input = st.text_area("Enter your answer or analysis here:")
+    if st.button("Submit Answer"):
+        st.write("You submitted the following analysis:")
+        st.write(user_input)
+    
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
+
+def show_ebitda_speed_run():
+    """Displays the EBITDA Speed Run page."""
+    st.subheader("💨 EBITDA Speed Run")
+    st.write(
+        "Welcome to the EBITDA Speed Run! In this challenge, you will calculate the EBITDA of "
+        "a company based on provided financial data. Your goal is to do it as quickly as possible."
+    )
+    # Frame for the challenge content
+    st.write("### Instructions:")
+    st.write(
+        "1. Review the company's income statement.\n"
+        "2. Calculate the EBITDA using the provided data.\n"
+        "3. Submit your result to see how fast you can calculate it!"
+    )
+    
+    # Placeholder for financial data (income statement)
+    st.write("### Income Statement Data:")
+    # Placeholder for income statement data (you can use tables, charts, or images here)
+    st.write("Income Statement Data would appear here.")
+    
+    # Placeholder for user input (e.g., the EBITDA calculation)
+    user_input = st.text_input("Enter your EBITDA calculation:")
+    if st.button("Submit Answer"):
+        st.write(f"You calculated EBITDA as: {user_input}")
+    
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
+
+def show_horizontal_analysis():
+    """Displays the Horizontal Analysis Battle page."""
+    st.subheader("📉 Horizontal Analysis Battle")
+    st.write(
+        "Welcome to the Horizontal Analysis Battle! In this challenge, you will analyze the "
+        "financial performance of a company over multiple periods."
+    )
+    # Frame for the challenge content
+    st.write("### Instructions:")
+    st.write(
+        "1. Review the financial data for multiple periods.\n"
+        "2. Perform horizontal analysis by calculating growth rates.\n"
+        "3. Answer questions about the company's performance over time."
+    )
+    
+    # Placeholder for financial data (multiple periods)
+    st.write("### Financial Data (Multiple Periods):")
+    # Placeholder for financial data over periods
+    st.write("Financial Data would appear here.")
+    
+    # Placeholder for user interaction (e.g., answer analysis)
+    user_input = st.text_area("Enter your horizontal analysis results:")
+    if st.button("Submit Answer"):
+        st.write("Your analysis:")
+        st.write(user_input)
+    
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
+
+def show_company_face_off():
+    """Displays the Company Face-Off page."""
+    st.subheader("🏢 Company Face-Off")
+    st.write(
+        "Welcome to the Company Face-Off! In this challenge, you will compare the financials "
+        "of two companies and determine which one is performing better."
+    )
+    # Frame for the challenge content
+    st.write("### Instructions:")
+    st.write(
+        "1. Compare the financial performance of two companies based on provided data.\n"
+        "2. Make a decision on which company is performing better in terms of profitability, "
+        "growth, and other financial metrics.\n"
+        "3. Submit your results to see if you made the right choice!"
+    )
+    
+    # Placeholder for financial data (company comparison)
+    st.write("### Company Financial Data:")
+    # Placeholder for financial data comparison between companies
+    st.write("Company 1 and Company 2 data would appear here.")
+    
+    # Placeholder for user decision (e.g., which company performs better)
+    user_input = st.radio(
+        "Which company is performing better?",
+        ("Company 1", "Company 2")
+    )
+    if st.button("Submit Decision"):
+        st.write(f"You chose: {user_input}")
+    
+    if st.button("Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
+
 def main():
     """Main app function"""
     if 'logged_in' not in st.session_state:
@@ -157,11 +278,11 @@ def main():
         # Display the main page/dashboard for authenticated users
         if st.session_state.page == "home":
             show_dashboard(simulated_user_data)
-        elif st.session_state.page == "balance_sheet":
+        elif st.session_state.page == "balance_sheet_challenge":
             show_balance_sheet_challenge()
         elif st.session_state.page == "ebitda_speed_run":
             show_ebitda_speed_run()
-        elif st.session_state.page == "horizontal_analysis":
+        elif st.session_state.page == "horizontal_analysis_battle":
             show_horizontal_analysis()
         elif st.session_state.page == "company_face_off":
             show_company_face_off()
