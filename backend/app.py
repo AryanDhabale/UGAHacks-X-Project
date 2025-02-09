@@ -21,7 +21,10 @@ st.set_page_config(layout="wide")
 simulated_user_data = {
     "username": "JohnDoe",  
     "level": 1,
-    "challenges_completed": 5
+    "challenges_completed": 5,
+    "curXP" : 690,
+    "fullXP" : 800
+
 }
 
 # Gemini API setup (for example)
@@ -128,10 +131,7 @@ def show_dashboard(simulated_user_data):
     # Navbar
     st.markdown("""
         <div class="navbar">
-            <a href="#">Home</a>
-            <a href="#">Challenges</a>
-            <a href="#">Market Data</a>
-            <a href="#">Profile</a>
+            <a href="#">Play Games to Learn More, and Level Up!!!</a>
         </div>
         """, unsafe_allow_html=True)
     
@@ -145,7 +145,7 @@ def show_dashboard(simulated_user_data):
     with col2:
         st.markdown("<div class='metric-box'>🏆<br><b>Challenges Completed</b><br>" + str(simulated_user_data["challenges_completed"]) + "</div>", unsafe_allow_html=True)
     with col3:
-        st.markdown("<div class='metric-box'>💰<br><b>BTC Price</b><br>" + fetch_crypto_price() + "</div>", unsafe_allow_html=True)
+        st.markdown("<div class='metric-box'>💰<br><b>XP to Next Level</b><br>" + str(simulated_user_data["curXP"]) + "/"+ str(simulated_user_data["fullXP"]) + "</div>", unsafe_allow_html=True)
 
     # Financial Data Section
     with st.container():
