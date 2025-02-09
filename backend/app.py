@@ -5,7 +5,7 @@ st.set_page_config(layout="wide")
 
 # Simulated user data for login
 simulated_user_data = {
-    "username": "JohnDoe", 
+    "username": "JohnDoe",  
     "level": 1,
     "challenges_completed": 5
 }
@@ -14,7 +14,7 @@ simulated_user_data = {
 GEMINI_API_URL = "https://api.gemini.com/v1/pubticker/BTCUSD"  # Example API endpoint for Gemini
 
 # AlphaVantage API setup (for financial data)
-ALPHA_VANTAGE_API_KEY = "YOUR_ALPHAVANTAGE_API_KEY"
+ALPHA_VANTAGE_API_KEY = "IJ3GJBXDGDD3FQ1X"
 ALPHA_VANTAGE_API_URL = "https://www.alphavantage.co/query"
 
 def display_financial_data():
